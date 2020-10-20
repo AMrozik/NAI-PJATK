@@ -10,12 +10,19 @@ int main( int argc, char** argv ) {
         std::cerr << "error opening frames source" << std::endl;
         return -1;
     }
+    // cv::CAP_PROP_FRAME_WIDTH = 800;
+    // cv::CAP_PROP_FRAME_HEIGHT = 600;
+    // cap.set(cv::CAP_PROP_FRAME_WIDTH, 800.0);
+    // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 600.0);
     std::cout << "Video size: " << cap.get( cv::CAP_PROP_FRAME_WIDTH )
     << "x" << cap.get( cv::CAP_PROP_FRAME_HEIGHT ) << std::endl;
     do {
         cv::Mat frame;
         if ( cap.read( frame ) ) {
+            // mirror the image
             cv::flip(frame, frame , +1);
+
+            // show image frame by frame
             cv::imshow( "Not-yet smart windown", frame );
         } else {
             // stream finished
