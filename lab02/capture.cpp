@@ -25,6 +25,16 @@ int main( int argc, char** argv ) {
       width = atoi(argv[1]);
       height = atoi(argv[2]);
     }
+
+    cv::namedWindow( "In_Range", cv::WINDOW_AUTOSIZE );
+
+    cv::createTrackbar( "H_Max_TrackBar", "In_Range", &H_max, alpha_slider_max);
+    cv::createTrackbar( "H_Min_TrackBar", "In_Range", &H_min, alpha_slider_max);
+    cv::createTrackbar( "S_Max_TrackBar", "In_Range", &S_max, alpha_slider_max);
+    cv::createTrackbar( "S_Min_TrackBar", "In_Range", &S_min, alpha_slider_max);
+    cv::createTrackbar( "V_Max_TrackBar", "In_Range", &V_max, alpha_slider_max);
+    cv::createTrackbar( "V_Min_TrackBar", "In_Range", &V_min, alpha_slider_max);
+
     printf("stream size: %dx%d\n", width, height);
     do {
         cv::Mat frame, frame_HSV, ss, inRange_frame;
@@ -35,18 +45,10 @@ int main( int argc, char** argv ) {
 
             cv::GaussianBlur(frame, frame, cv::Size(5,5), 0, 0);
 
-
             // Convert from BGR to HSV colorspace
             cv::cvtColor(frame, frame_HSV, cv::COLOR_BGR2HSV);
 
             cv::imshow( "almost smart window", frame );
-
-            cv::createTrackbar( "H_Max_TrackBar", "In_Range", &H_max, alpha_slider_max);
-            cv::createTrackbar( "H_Min_TrackBar", "In_Range", &H_min, alpha_slider_max);
-            cv::createTrackbar( "S_Max_TrackBar", "In_Range", &S_max, alpha_slider_max);
-            cv::createTrackbar( "S_Min_TrackBar", "In_Range", &S_min, alpha_slider_max);
-            cv::createTrackbar( "V_Max_TrackBar", "In_Range", &V_max, alpha_slider_max);
-            cv::createTrackbar( "V_Min_TrackBar", "In_Range", &V_min, alpha_slider_max);
 
             cv::inRange(frame_HSV, cv::Scalar(H_min, S_min, V_min), cv::Scalar(H_max, S_max, V_max), inRange_frame);
 
