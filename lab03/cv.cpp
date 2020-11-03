@@ -49,7 +49,7 @@ int main() {
 	createTrackbar("hiRange2", "jakostam",&(hiRange[2]), 255);
 	VideoCapture camera(0);
 	//VideoCapture backgroundvid("Multiwave.wmv");
-	Mat background = imread("plaza.jpg", cv::IMREAD_COLOR);
+	// Mat background = imread("plaza.jpg", cv::IMREAD_COLOR);
 
   MyObject myobj1, myobj2;
   myobj1.maxC = 10;
@@ -70,7 +70,7 @@ int main() {
 		camera >> frame;
 		flip(frame, frame, 1);
     resize(frame, frame, {800, 600});
-		resize(background, backgroundScaled,{frame.cols, frame.rows});
+		// resize(background, backgroundScaled,{frame.cols, frame.rows});
 		cvtColor(frame, frameMask, cv::COLOR_BGR2HSV);
 
 		inRange(frameMask, Scalar(loRange[0],loRange[1],loRange[2]),
@@ -110,34 +110,35 @@ int main() {
 
     if(contours.size()){
       Point avg;
-      Rect r = boundingRect(contours.at(0));
-      avg.x = r.x+r.width/2;
-      avg.y = r.y+r.height/2;
+      Rect r1 = boundingRect(contours.at(0));
+      avg.x = r1.x+r1.width/2;
+      avg.y = r1.y+r1.height/2;
       myobj1.addPoint(avg);
       // putText(frame, "0", avg, cv::FONT_HERSHEY_PLAIN,2,{0,255,255,255});
-      if (contours.size() > 1){
-        r = cv::boundingRect(contours.at(1));
-        avg.x = r.x+r.width/2;
-        avg.y = r.y+r.height/2;
-        myobj2.addPoint(avg);
+        if (contours.size() > 1){
+            Rect r2 = cv::boundingRect(contours.at(1));
+            avg.x = r2.x+r2.width/2;
+            avg.y = r2.y+r2.height/2;
+            myobj2.addPoint(avg);
 
-        cv::line(frame, myobj1.getPosition(), myobj2.getPosition(), cv::Scalar(0,0,0), 2);
+            if(!(r1.y > r2.y + 45 || r2.y > r1.y + 45))
+              cv::line(frame, myobj1.getPosition(), myobj2.getPosition(), cv::Scalar(0,0,0), 2);
 
       }
       else{
-        myobj2.addEmpty();
+          myobj2.addEmpty();
       }
     } else {
-      myobj1.addEmpty();
-      myobj2.addEmpty();
+        myobj1.addEmpty();
+        myobj2.addEmpty();
     }
-    if (myobj1.pos.size() > 1){
-        putText(frame, "X", myobj1.getPosition(), cv::FONT_HERSHEY_PLAIN,2,{0,255,255,255});
-        putText(frame, "X", myobj2.getPosition(), cv::FONT_HERSHEY_PLAIN,2,{0,255,255,255});
-
-        // vector<vector<Point>>ctrs = {myobj1.pos};
-        // drawContours(frame, ctrs, 0, {255,0,255,255});
-    }
+    // if (myobj1.pos.size() > 1){
+    //     putText(frame, "X", myobj1.getPosition(), cv::FONT_HERSHEY_PLAIN,2,{0,255,255,255});
+    //     putText(frame, "X", myobj2.getPosition(), cv::FONT_HERSHEY_PLAIN,2,{0,255,255,255});
+    //
+    //     // vector<vector<Point>>ctrs = {myobj1.pos};
+    //     // drawContours(frame, ctrs, 0, {255,0,255,255});
+    // }
     imshow("contours", frame);
 	}
 	return 0;
