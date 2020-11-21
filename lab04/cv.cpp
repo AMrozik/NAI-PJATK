@@ -21,7 +21,8 @@ double angle(cv::Point pt1, cv::Point pt2, cv::Point pt0)
 
 int main()
 {
-	int canny_a = 16, canny_b = 32;
+	bool _DEBUG = false;
+	int canny_a = 88, canny_b = 88;
 
 	namedWindow("prostokaty", cv::WINDOW_AUTOSIZE);
 	createTrackbar("A", "prostokaty", &canny_a, 255);
@@ -35,24 +36,24 @@ int main()
     resize(frame, frame, {800, 600});
 		flip(frame, frame, 1);
 		frame0 = frame.clone();
-		imshow("frame_from_cam", frame);
+		if (_DEBUG) imshow("frame_from_cam", frame);
 		cvtColor(frame, frameBw, COLOR_BGR2GRAY);
-		imshow("bw", frameBw);
+		if (_DEBUG) imshow("bw", frameBw);
 		equalizeHist(frameBw, frameBw);
-		imshow("bw_hist", frameBw);
+		if (_DEBUG) imshow("bw_hist", frameBw);
 
 		Canny(frameBw, frameCanny, canny_a, canny_b, 3);
-		imshow("bw_Canny", frameCanny);
+		if (_DEBUG) imshow("bw_Canny", frameCanny);
 		static auto ellipse = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
 		morphologyEx(frameBw, frameBw, MORPH_CLOSE, ellipse);
 		morphologyEx(frameBw, frameBw, MORPH_OPEN, ellipse);
 
 		Canny(frameBw, frameCanny, canny_a, canny_b, 3);
-		imshow("bw_Canny_2", frameCanny);
+		if (_DEBUG) imshow("bw_Canny_2", frameCanny);
 		static auto ellipse_33 = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
 		morphologyEx(frameCanny, frameCanny, MORPH_DILATE, ellipse_33);
 
-		imshow("bw_Canny_2_dil", frameCanny);
+		if (_DEBUG) imshow("bw_Canny_2_dil", frameCanny);
 		vector<vector<Point>> contours;
 		vector<vector<Point>> contours_4;
 		findContours(frameCanny, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
@@ -64,7 +65,7 @@ int main()
 				double amax = 0;
 				for (int j = 0; j < 4; j++)
 				{
-					double a = fabs(angle(contours[i][j], contours[i][(j + 1) % 4], contours[i][(j + 1) % 4]));
+					double a = fabs(angle(contours[i][j], contours[i][(j + 2) % 4], contours[i][(j + 1) % 4]));
 					amax = max(a, amax);
 				}
 				if (amax < 0.4)
@@ -82,7 +83,7 @@ int main()
 				 [](auto &a, auto &b) {
 					 return contourArea(a, false) > contourArea(b, false);
 				 });
-			drawContours(frame, contours_4, 0, Scalar(255, 255, 255));
+			drawContours(frame, contours_4, 0, Scalar(0, 255, 0), 2);
 			Mat dstMat(Size(300, 200), CV_8UC3);
 			vector<Point2f> src = {{0, 0}, {float(dstMat.cols), 0}, {float(dstMat.cols), float(dstMat.rows)}, {0, float(dstMat.rows)}};
 			vector<Point2f> dst;
@@ -92,11 +93,30 @@ int main()
 			warpPerspective(frame0, dstMat, wrap_mtx, Size(float(dstMat.cols), float(dstMat.rows)));
 
 			imshow("RESULT", dstMat);
+
+
+
+		Mat result, redMask, redNegMask;
+		vector<vector<Point>> redContours;
+		int dilation_size = 5;
+
+		auto structElem = getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2* dilation_size + 1, 2 * dilation_size +1), cv::Point(dilation_size, dilation_size));
+
+		cvtColor(dstMat, redMask, cv::COLOR_BGR2HSV);
+		inRange(redMask, Scalar(0, 83, 69), Scalar(174,255,255), redNegMask);
+		morphologyEx(redNegMask, redNegMask, cv::MORPH_CLOSE, structElem);
+		morphologyEx(redNegMask, redNegMask, cv::MORPH_OPEN, structElem);
+
+		imshow("Maska", redNegMask);
+
+		findContours(redNegMask, redContours, cv::RETR_LIST, cv::CHAIN_APPROX_TC89_KCOS);
+
+		imshow("ok", dstMat);
+
 		}
+
 		imshow("frame_from_cam", frame);
-		// wykryć prostokąty
-		// znaleźć macierz przekształcenia z czworokąta do prostokąta
-		// wyciąć i wyświetlić po przekształceniu ten obraz
+
 	}
 	return 0;
 }
