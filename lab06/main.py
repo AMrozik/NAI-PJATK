@@ -1,6 +1,7 @@
 import random
 from numpy.random import uniform
 from math import sin, pi
+import matplotlib.pyplot as plt
 
 
 def hill_climb(get_random_sol, get_all_neighbours, goal_fun, max_iter):
@@ -8,21 +9,20 @@ def hill_climb(get_random_sol, get_all_neighbours, goal_fun, max_iter):
     for iteration in range(max_iter):
         next_solutions = get_all_neighbours(current_solution)
         next_solutions.append(current_solution[:])
-        print(next_solutions)
         current_solution = min(next_solutions, key=goal_fun)
     return current_solution
 
 
-def random_sampling(goal_fun, max_iter=10000, domain=(-10, 10)):
+def random_sampling(goal_fun, max_iter=5, domain=(-10, 10)):
     min_d, max_d = domain
     current_solution = init(min_d, max_d)
+    iterations = []
     for i in range(max_iter):
-        sol = init(min_d, max_d)
-        print(sol)
-        sol.append(current_solution[:])
-        print(sol)
+        sol = [init(min_d, max_d), current_solution[:]]
         current_solution = min(sol, key=goal_fun)
-    return current_solution
+        # print(goal_fun(current_solution))
+        iterations.append(goal_fun(current_solution))
+    return current_solution, iterations
 
 
 def sphere_fun(vector):
@@ -74,9 +74,33 @@ def init(min_d, max_d):
 
 
 if __name__ == '__main__':
-    max_iterations = 100000
-    x = init(-5, 5)
-    # solution = hill_climb(init, neighbours, levi_fun, max_iterations)
-    solution = random_sampling(levi_fun)
-    print(solution)
+    max_iterations = 1000
+    goal_fun = levi_fun
+
+    wyniki_iteracji = []
+
+    for i in range(20):
+        solution, iterations = random_sampling(goal_fun, max_iter=max_iterations)
+        wyniki_iteracji.append(iterations)
+
+    srednia = 0
+    wyniki_srednie = []
+    for j in range(max_iterations):
+        for i in range(20):
+            srednia += wyniki_iteracji[i][j]
+        srednia /= 20
+        wyniki_srednie.append(srednia)
+
+    print(wyniki_srednie)
+
+    plt.plot(wyniki_srednie)
+    plt.xlabel("liczba iteracji")
+    plt.ylabel("średni wynik dla 20 testów")
+    plt.show()
+
+    # plot_y = []
+    # for i in range(20):
+    #     solution = random_sampling(goal_fun)
+    #     score = goal_fun(solution)
+    #     plot_y.append(score)
 
