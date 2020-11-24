@@ -1,4 +1,3 @@
-import random
 from numpy.random import uniform
 from math import sin, pi
 import matplotlib.pyplot as plt
@@ -13,7 +12,7 @@ def hill_climb(get_random_sol, get_all_neighbours, goal_fun, max_iter):
     return current_solution
 
 
-def random_sampling(goal_fun, max_iter=5, domain=(-10, 10)):
+def random_sampling(goal_fun, max_iter=10, domain=(-10, 10)):
     min_d, max_d = domain
     current_solution = init(min_d, max_d)
     iterations = []
@@ -42,18 +41,24 @@ def himmelblau_fun(vector):
 def levi_fun(vector):
     x = vector[0]
     y = vector[1]
+    if x > 10 or x < -10 or y > 10 or y < -10:
+        raise Exception("punkt z poza dziedziny")
     return sin(3*pi*x)**2 + (x-1)**2 * (1+(sin(3*pi*y)**2)) + (y-1)**2 * (1+(sin(2*pi*y)))
 
 
 def matyas_fun(vector):
     x = vector[0]
     y = vector[1]
+    if x > 10 or x < -10 or y > 10 or y < -10:
+        raise Exception("punkt z poza dziedziny")
     return 0.26 * (x**2 + y**2) - 0.48*x*y
 
 
 def booth_fun(vector):
     x = vector[0]
     y = vector[1]
+    if x > 10 or x < -10 or y > 10 or y < -10:
+        raise Exception("punkt z poza dziedziny")
     return (x + 2*y - 7)**2 + (2*x + y - 5)**2
 
 
@@ -74,8 +79,18 @@ def init(min_d, max_d):
 
 
 if __name__ == '__main__':
-    max_iterations = 1000
-    goal_fun = levi_fun
+    max_iterations = int(input("podaj maksymalną liczbę iteracji: "))
+
+    choose = int(input("Wybierz funkcje:\n1: Lévi function\n2: Matyas function\n3: Booth function\n>"))
+
+    if choose == 1:
+        goal_fun = levi_fun
+    elif choose == 2:
+        goal_fun = matyas_fun
+    elif choose == 3:
+        goal_fun = booth_fun
+    else:
+        goal_fun = levi_fun
 
     wyniki_iteracji = []
 
@@ -83,9 +98,10 @@ if __name__ == '__main__':
         solution, iterations = random_sampling(goal_fun, max_iter=max_iterations)
         wyniki_iteracji.append(iterations)
 
-    srednia = 0
+
     wyniki_srednie = []
     for j in range(max_iterations):
+        srednia = 0
         for i in range(20):
             srednia += wyniki_iteracji[i][j]
         srednia /= 20
@@ -97,10 +113,3 @@ if __name__ == '__main__':
     plt.xlabel("liczba iteracji")
     plt.ylabel("średni wynik dla 20 testów")
     plt.show()
-
-    # plot_y = []
-    # for i in range(20):
-    #     solution = random_sampling(goal_fun)
-    #     score = goal_fun(solution)
-    #     plot_y.append(score)
-
