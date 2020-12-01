@@ -1,167 +1,100 @@
-from numpy.random import uniform, randint
-from math import sin, pi
-import matplotlib.pyplot as plt
-import sys
+
+# parametry:
+# funkcja oceny
+# funkcja dekodujaca
 
 
-def hill_climb(get_random_sol, get_all_neighbours, goal_fun, max_iter=10, domain=(-10, 10)):
-    min_d, max_d = domain
-    current_solution = get_random_sol(min_d, max_d)
-    iterations = []
-    for iteration in range(max_iter):
-        next_solutions = get_all_neighbours(current_solution)
-        next_solutions.append(current_solution[:])
-        current_solution = min(next_solutions, key=goal_fun)
-        iterations.append(goal_fun(current_solution))
-    return current_solution, iterations
+# populacja := generuj_populacje początkową_rozmiaru(n)
+# oceń(populacja)
+
+# powtarzaj( !warunek_zakonczenia(populacja) )
+#     populacja_rodziców = selekcja(populacja)      #selekcja nie wybiera tylko najlepszych
+#     populacja_potomków = krzyżowanie(populacja_rodziców)
+#     populacja_potomków = mutacja(populacja_potomkow)
+#     oceń(populacja_potomkow)
+#     populacja = populacja_potomkow
+
+# zwracamy najlepszego, albo całą populacje
+
+from numpy.random import uniform
 
 
-def random_hill_climb(get_random_sol, get_r_neighbour, goal_fun, max_iter=10, domain=(-10, 10)):
-    min_d, max_d = domain
-    current_solution = get_random_sol(min_d, max_d)
-    iterations = []
-    for iteration in range(max_iter):
-        next_sol = get_r_neighbour(current_solution)
-        if goal_fun(current_solution) > goal_fun(next_sol):
-            current_solution = next_sol
-        iterations.append(goal_fun(current_solution))
-    return current_solution, iterations
+class specimen:
+    def __init__(self, n):
+        self.chromosome = [0] * n
+        self.fit = -1
+
+    def randomize(self):
+        for i in range(len(self.chromosome)):
+            self.chromosome[i] = round(uniform(), 3)
 
 
-def random_sampling(get_random_sol, goal_fun, max_iter=10, domain=(-10, 10)):
-    min_d, max_d = domain
-    current_solution = get_random_sol(min_d, max_d)
-    iterations = []
-    for i in range(max_iter):
-        sol = [init(min_d, max_d), current_solution[:]]
-        current_solution = min(sol, key=goal_fun)
-        # print(goal_fun(current_solution))
-        iterations.append(goal_fun(current_solution))
-    return current_solution, iterations
+def fitness(genotype):
+
+    # decode
+    # fenotyp = decode(genotyp)
+    # calculate = fitness(fenotyp)
+
+    s = 0
+    for e in genotype.chromosome:
+        s += e
+    return s
 
 
-def sphere_fun(vector):
-    sum = 0
-    for x in vector:
-        sum += x * x
-    return sum
-
-
-def himmelblau_fun(vector):
-    x = vector[0]
-    y = vector[1]
-    return pow(x * x + y - 11, 2.0) + pow(x + y * y - 7, 2)
-
-
-# # # My Functions of Choice # # #
-def levi_fun(vector):
-    x = vector[0]
-    y = vector[1]
-    if x > 10 or x < -10 or y > 10 or y < -10:
-        raise Exception("punkt z poza dziedziny")
-    return sin(3*pi*x)**2 + (x-1)**2 * (1+(sin(3*pi*y)**2)) + (y-1)**2 * (1+(sin(2*pi*y)))
-
-
-def matyas_fun(vector):
-    x = vector[0]
-    y = vector[1]
-    if x > 10 or x < -10 or y > 10 or y < -10:
-        raise Exception("punkt z poza dziedziny")
-    return 0.26 * (x**2 + y**2) - 0.48*x*y
-
-
-def booth_fun(vector):
-    x = vector[0]
-    y = vector[1]
-    if x > 10 or x < -10 or y > 10 or y < -10:
-        raise Exception()
-    return (x + 2*y - 7)**2 + (2*x + y - 5)**2
-
-
-def neighbours(x, dx=0.001):
+def calculate_pop_fitness(population):
     ret = []
-    for i in range(len(x)):
-        nx = x[:]
-        nx[i] += dx
-        ret.append(nx[:])
-        nx[i] -= 2.0 * dx
-        ret.append(nx[:])
+    for e in population:
+        e.fit = fitness(e)
+        ret.append(e)
     return ret
 
 
-def random_neighbour(x, dx=0.001):
+def generate_init_pop(chromosome_size):
     ret = []
-    for i in range(len(x)):
-        nx = x[:]
-        nx[i] += dx
-        ret.append(nx[:])
-        nx[i] -= 2.0 * dx
-        ret.append(nx[:])
-    return ret[randint(0, len(ret)-1)]
+    for i in range(10):
+        spec = specimen(chromosome_size)
+        spec.randomize()
+        print(spec.chromosome)
+        ret.append(spec)
+        # print(ret[i].chromosome)
+    return ret
 
 
-def init(min_d, max_d):
-    x = [uniform(min_d, max_d), uniform(min_d, max_d)]
-    return x
+def get_term_condition_iterations(iterations_max):
+
+    def term_condition():
+        nonlocal iterations_max
+        iterations_max -= 1
+        # print("iterations to go ", iterations_max)
+        if iterations_max > 0: return True
+        return False
+    return term_condition
+
+
+def selection(population):
+    return population
+
+
+def crossover(population):
+    return population
+
+
+def mutation(population):
+    return population
+
+
+def genetic_algorithm(calculate_pop_fitness, generate_init_pop, stop_condition, selection, crossover, mutation):
+    population = generate_init_pop(8)       # lista / vector
+    population = calculate_pop_fitness(population)
+    while stop_condition():
+        # for e in population:
+        #     print(e.chromosome)
+        parents = selection(population)
+        offspring = crossover(parents)
+        offspring = mutation(offspring)
+        population = calculate_pop_fitness(offspring)
+    return population
 
 
 if __name__ == '__main__':
-
-    if len(sys.argv) > 3:
-        max_iterations = int(sys.argv[1])
-        choose_goal = sys.argv[2]
-        neighbour_fun = neighbours
-        if choose_goal == "levi":
-            goal_fun = levi_fun
-        elif choose_goal == "Matyas":
-            goal_fun = matyas_fun
-        elif choose_goal == "Booth":
-            goal_fun = booth_fun
-        else:
-            print("nieznany argument: ", choose_goal)
-            exit(1)
-
-        choose_opt = sys.argv[3]
-        if choose_opt == "sampling":
-            opt_fun = random_sampling
-        elif choose_opt == "hill_climb":
-            opt_fun = hill_climb
-        elif choose_opt == "r_hill_climb":
-            opt_fun = random_hill_climb
-            neighbour_fun = random_neighbour
-        else:
-            print("nieznany argument: ", choose_opt)
-            exit(2)
-
-    else:
-        print("niewystarczająca liczba argumentów")
-        exit(3)
-
-    wyniki_iteracji = []
-
-    try:
-        for i in range(5):
-            if choose_opt == "sampling":
-                solution, iterations = opt_fun(init, goal_fun, max_iter=max_iterations)
-            else:
-                solution, iterations = opt_fun(init, neighbour_fun, goal_fun, max_iter=max_iterations)
-            wyniki_iteracji.append(iterations)
-    except Exception as ex:
-        print("Przechwycono wyjątek: ", ex)
-        exit(3)
-
-    wyniki_srednie = []
-    for j in range(max_iterations):
-        srednia = 0
-        for i in range(5):
-            srednia += wyniki_iteracji[i][j]
-        srednia /= 20
-        wyniki_srednie.append(srednia)
-
-    # print(wyniki_srednie)
-
-    plt.plot(wyniki_srednie)
-    plt.xlabel("liczba iteracji")
-    plt.ylabel("średni wynik dla 20 testów")
-    plt.savefig("figure1")
-    plt.show()
+    ret = genetic_algorithm(calculate_pop_fitness, generate_init_pop, get_term_condition_iterations(20), selection, crossover, mutation)
