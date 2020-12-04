@@ -1,100 +1,74 @@
+from numpy import exp, sin, cos, sqrt, pi
 
-# parametry:
-# funkcja oceny
-# funkcja dekodujaca
-
-
-# populacja := generuj_populacje początkową_rozmiaru(n)
-# oceń(populacja)
-
-# powtarzaj( !warunek_zakonczenia(populacja) )
-#     populacja_rodziców = selekcja(populacja)      #selekcja nie wybiera tylko najlepszych
-#     populacja_potomków = krzyżowanie(populacja_rodziców)
-#     populacja_potomków = mutacja(populacja_potomkow)
-#     oceń(populacja_potomkow)
-#     populacja = populacja_potomkow
-
-# zwracamy najlepszego, albo całą populacje
-
-from numpy.random import uniform
+def himmelblau_fun(vector):
+    x = vector[0]
+    y = vector[1]
+    return pow(x * x + y - 11, 2.0) + pow(x + y * y - 7, 2)
 
 
-class specimen:
-    def __init__(self, n):
-        self.chromosome = [0] * n
-        self.fit = -1
-
-    def randomize(self):
-        for i in range(len(self.chromosome)):
-            self.chromosome[i] = round(uniform(), 3)
+def holder_table_fun(vector):
+    x = vector[0]
+    y = vector[1]
+    return -abs(sin(x)*cos(y)*exp(abs(1 - sqrt(x*x + y*y)/pi)))
 
 
-def fitness(genotype):
+def decimal_converter(num):
+    while num > 1:
+        num /= 10
+    return num
 
-    # decode
-    # fenotyp = decode(genotyp)
-    # calculate = fitness(fenotyp)
+def float2bin(number, precision=32):
+    whole, dec = str(number).split(".")
 
-    s = 0
-    for e in genotype.chromosome:
-        s += e
-    return s
+    whole = int(whole)
+    dec = int(dec)
 
+    res = bin(whole).lstrip("0b") + "."
 
-def calculate_pop_fitness(population):
-    ret = []
-    for e in population:
-        e.fit = fitness(e)
-        ret.append(e)
-    return ret
+    for x in range(precision):
+        whole, dec = str((decimal_converter(dec)) * 2).split(".")
+        dec = int(dec)
+        res += whole
 
-
-def generate_init_pop(chromosome_size):
-    ret = []
-    for i in range(10):
-        spec = specimen(chromosome_size)
-        spec.randomize()
-        print(spec.chromosome)
-        ret.append(spec)
-        # print(ret[i].chromosome)
-    return ret
+    return res
 
 
-def get_term_condition_iterations(iterations_max):
+def bin2float(bin_number):
+    dec = bin_number[:3]
+    frac = bin_number[-4:]
 
-    def term_condition():
-        nonlocal iterations_max
-        iterations_max -= 1
-        # print("iterations to go ", iterations_max)
-        if iterations_max > 0: return True
-        return False
-    return term_condition
+    frac_num = 0
+    twos = 1
 
+    for i in frac:
+        frac_num += int(i) * (1 / (2 ** twos))
+        twos += 1
 
-def selection(population):
-    return population
-
-
-def crossover(population):
-    return population
+    return int(dec, 2) + frac_num
 
 
-def mutation(population):
-    return population
+def get_fitness_fun(goal_fun):
 
+    def fitness_fun(vector):
+        return 1/(1+goal_fun(vector))
 
-def genetic_algorithm(calculate_pop_fitness, generate_init_pop, stop_condition, selection, crossover, mutation):
-    population = generate_init_pop(8)       # lista / vector
-    population = calculate_pop_fitness(population)
-    while stop_condition():
-        # for e in population:
-        #     print(e.chromosome)
-        parents = selection(population)
-        offspring = crossover(parents)
-        offspring = mutation(offspring)
-        population = calculate_pop_fitness(offspring)
-    return population
-
+    return fitness_fun
 
 if __name__ == '__main__':
-    ret = genetic_algorithm(calculate_pop_fitness, generate_init_pop, get_term_condition_iterations(20), selection, crossover, mutation)
+    # ret = genetic_algorithm(calculate_pop_fitness, generate_init_pop, get_term_condition_iterations(30), selection, crossover, mutation)
+    number = "101.1101"
+    # dec = number[:3]
+    # frac = number[-4:]
+    #
+    # frac_num = 0
+    # twos = 1
+    #
+    # for i in frac:
+    #     frac_num += int(i) * (1/(2**twos))
+    #     twos += 1
+
+    # new_number = bin2float(number)
+    # print(new_number)
+    #
+    # print(float2bin(new_number, 4))
+
