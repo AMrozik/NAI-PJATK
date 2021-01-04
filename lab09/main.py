@@ -11,7 +11,7 @@ def himmelblau_fun(vector):
 def holder_table_fun(vector):
     x = vector[0]
     y = vector[1]
-    return -abs(sin(x)*cos(y)*exp(abs(1 - sqrt(x*x + y*y)/pi)))
+    return -abs(sin(x) * cos(y) * exp(abs(1 - sqrt(x * x + y * y) / pi)))
 
 
 def decimal_converter(num):
@@ -61,17 +61,16 @@ def bin2float(bin_number):
 
 
 def get_fitness_fun(goal_fun):
-
     def fitness_fun(vector):
-        return 1/(1+goal_fun(vector))
+        return 1 / (1 + goal_fun(vector))
 
     return fitness_fun
 
 
 def genotype_to_fenotype(genotype):
     length = len(genotype)
-    part1 = genotype[:length//2]
-    part2 = genotype[length//2:]
+    part1 = genotype[:length // 2]
+    part2 = genotype[length // 2:]
 
     X = 0
     for i in part1[1:]:
@@ -108,13 +107,51 @@ def fenotype_to_genotype(X, Y):
     return tab
 
 
+def one_point_crossing(X1, X2):
+    c = len(X1) // 2
+    return X1[:c] + X2[c:]
+
+
+def point_mutation(X1):
+    r = random.randint(0, len(X1) - 1)
+    print(r)
+    s = X1[r]
+    if s == 0:
+        s = 1
+    else:
+        s = 0
+    X1[r] = s
+    return X1
+
+
+def tournament_selection(pop, k, fitness=himmelblau_fun):
+    best = None
+    for i in range(k):
+        ind = pop[random.randint(1, len(pop)-1)]
+        if best is None or (fitness(genotype_to_fenotype(ind)) > fitness(genotype_to_fenotype(best))):
+            best = ind
+    return best
+
+
 if __name__ == '__main__':
-    DEBUG = True
-    genotype = [random.randint(0, 1) for i in range(16)]
-    if DEBUG: print(genotype)
+    # DEBUG = True
+    # genotype = [random.randint(0, 1) for i in range(16)]
+    # if DEBUG: print(genotype)
+    #
+    # X, Y = genotype_to_fenotype(genotype)
+    #
+    # print(X)
+    # print(Y)
 
-    X, Y = genotype_to_fenotype(genotype)
+    X1 = [random.randint(0, 1) for i in range(16)]
+    X2 = [random.randint(0, 1) for i in range(16)]
+    print("krzyżowanie: ")
+    print("X1: ", X1)
+    print("X2: ", X2)
+    X3 = one_point_crossing(X1, X2)
+    print("po krzyżowaniu: ", X3)
+    X4 = point_mutation(X3)
+    print("po mutacji: ", X4)
 
-    print(X)
-    print(Y)
-
+    pop = [X1, X2, X3, X4]
+    print(tournament_selection(pop, 5))

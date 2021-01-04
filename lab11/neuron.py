@@ -62,10 +62,10 @@ class neuron():
             weight_sum = sum(self.weights)
 
             for i in range(len(X)):
-                Y_out = tanh(weight_sum)
+                y_out = tanh(weight_sum)
 
                 for j in range(self.input_number):
-                    self.weights[j] += eta * self.activation_derivative(weight_sum) * (Y[i] - Y_out) * X[i][j]
+                    self.weights[j] += eta * self.activation_derivative(weight_sum) * (Y[i] - y_out) * X[i][j]
 
     def output(self, input):
         sum = 0
