@@ -32,7 +32,7 @@ def float2bin(number, precision=16):
         whole, dec = str((decimal_converter(dec)) * 2).split(".")
         dec = int(dec)
         res += whole
-dwadwda
+
     return res
 
 
