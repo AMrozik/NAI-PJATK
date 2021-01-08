@@ -114,7 +114,7 @@ def one_point_crossing(X1, X2):
 
 def point_mutation(X1):
     r = random.randint(0, len(X1) - 1)
-    print(r)
+    # print(r)
     s = X1[r]
     if s == 0:
         s = 1
@@ -133,6 +133,24 @@ def tournament_selection(pop, k, fitness=himmelblau_fun):
     return best
 
 
+def init_pop(n):
+    pop = []
+    for i in range(n):
+        genotype = [random.randint(0, 1) for i in range(16)]
+        pop.append(genotype)
+    return pop
+
+
+def GA(k=16, p=20, fitness=himmelblau_fun):
+    population = init_pop(p)
+    for i in range(k):
+        selected = []
+        for j in range(p*2):
+            selected.append(tournament_selection(population, p//4, fitness=fitness))
+        new_pop = [point_mutation(one_point_crossing(selected.pop(), selected.pop())) for i in range(p)]
+    return max(new_pop, key=fitness)
+
+
 if __name__ == '__main__':
     # DEBUG = True
     # genotype = [random.randint(0, 1) for i in range(16)]
@@ -143,15 +161,17 @@ if __name__ == '__main__':
     # print(X)
     # print(Y)
 
-    X1 = [random.randint(0, 1) for i in range(16)]
-    X2 = [random.randint(0, 1) for i in range(16)]
-    print("krzyżowanie: ")
-    print("X1: ", X1)
-    print("X2: ", X2)
-    X3 = one_point_crossing(X1, X2)
-    print("po krzyżowaniu: ", X3)
-    X4 = point_mutation(X3)
-    print("po mutacji: ", X4)
+    # X1 = [random.randint(0, 1) for i in range(16)]
+    # X2 = [random.randint(0, 1) for i in range(16)]
+    # print("krzyżowanie: ")
+    # print("X1: ", X1)
+    # print("X2: ", X2)
+    # X3 = one_point_crossing(X1, X2)
+    # print("po krzyżowaniu: ", X3)
+    # X4 = point_mutation(X3)
+    # print("po mutacji: ", X4)
+    #
+    # pop = [X1, X2, X3, X4]
+    # print(tournament_selection(pop, 5))
 
-    pop = [X1, X2, X3, X4]
-    print(tournament_selection(pop, 5))
+    print(GA())
