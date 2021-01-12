@@ -4,20 +4,6 @@ import csv
 
 
 def read_input_data(filename):
-    """
-    Reads input data (train / test) from a CSV file.
-    Input:
-        filename - CSV file name (string)
-    CSV file format:
-        input1, input2, ..., output
-                        ...
-                        ...
-    Returns:
-        Nin - number of inputs of the perceptron (int)
-        X - input training data (list)
-        Y - output (expected) training data (list)
-    """
-
     X = []
     Y = []
 
@@ -80,6 +66,6 @@ if __name__ == '__main__':
     n = neuron(Nin)
     print(n.weights)
     print(n.output([0.2, 0.1]))
-    n.train(10000, X, Y, eta=0.4)
+    n.train(1000, X, Y, eta=0.6)
     print(n.weights)
-    print(n.output([0.2, 0.1]))
+    print(n.output([0.15, 0.15]))

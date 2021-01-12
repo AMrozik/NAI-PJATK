@@ -108,8 +108,10 @@ def fenotype_to_genotype(X, Y):
 
 
 def one_point_crossing(X1, X2):
-    c = len(X1) // 2
-    return X1[:c] + X2[c:]
+    c = random.randint(1, len(X1)-2)
+    X3 = X1[:c] + X2[c:]
+    X4 = X2[:c] + X1[c:]
+    return X3, X4
 
 
 def point_mutation(X1):
@@ -146,8 +148,12 @@ def GA(k=16, p=20, fitness=himmelblau_fun):
     for i in range(k):
         selected = []
         for j in range(p*2):
-            selected.append(tournament_selection(population, p//4, fitness=fitness))
-        new_pop = [point_mutation(one_point_crossing(selected.pop(), selected.pop())) for i in range(p)]
+            selected.append(tournament_selection(population, 3, fitness=fitness))
+        new_pop = []
+        for i in range(p//2):
+            crossed = one_point_crossing(selected.pop(), selected.pop())
+            new_pop.append(point_mutation(crossed[0]))
+            new_pop.append(point_mutation(crossed[1]))
     return max(new_pop, key=fitness)
 
 
